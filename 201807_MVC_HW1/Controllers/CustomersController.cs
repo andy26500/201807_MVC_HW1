@@ -8,13 +8,20 @@ namespace _201807_MVC_HW1.Controllers
 {
     public class CustomersController : Controller
     {
-        private CustomerEntities db = new CustomerEntities();
+        private 客戶資料Repository customerRepo;
+        private 客戶分類Repository categoryRepo;
+
+        public CustomersController()
+        {
+            customerRepo = RepositoryHelper.Get客戶資料Repository();
+            categoryRepo = RepositoryHelper.Get客戶分類Repository(customerRepo.UnitOfWork);
+        }
 
         // GET: Customers
         public ActionResult Index()
         {
-            var 客戶資料 = db.客戶資料.Include(客 => 客.客戶分類1);
-            return View(客戶資料.ToList());
+            var data = customerRepo.All().Include(x => x.客戶分類1).ToList();
+            return View(data);
         }
 
         // GET: Customers/Details/5
@@ -25,19 +32,20 @@ namespace _201807_MVC_HW1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            if (客戶資料 == null)
+            var customer = customerRepo.Find(id.Value);
+
+            if (customer == null)
             {
                 return HttpNotFound();
             }
 
-            return View(客戶資料);
+            return View(customer);
         }
 
         // GET: Customers/Create
         public ActionResult Create()
         {
-            ViewBag.客戶分類 = new SelectList(db.客戶分類, "Id", "分類名稱");
+            ViewBag.客戶分類 = new SelectList(categoryRepo.All(), "Id", "分類名稱");
             return View();
         }
 
@@ -47,17 +55,17 @@ namespace _201807_MVC_HW1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,客戶名稱,統一編號,電話,傳真,地址,Email,是否已刪除,客戶分類")]
-            客戶資料 客戶資料)
+            客戶資料 model)
         {
             if (ModelState.IsValid)
             {
-                db.客戶資料.Add(客戶資料);
-                db.SaveChanges();
+                customerRepo.Add(model);
+                customerRepo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.客戶分類 = new SelectList(db.客戶分類, "Id", "分類名稱", 客戶資料.客戶分類);
-            return View(客戶資料);
+            ViewBag.客戶分類 = new SelectList(categoryRepo.All(), "Id", "分類名稱");
+            return View(model);
         }
 
         // GET: Customers/Edit/5
@@ -68,14 +76,14 @@ namespace _201807_MVC_HW1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            if (客戶資料 == null)
+            var customer = customerRepo.Find(id.Value);
+            if (customer == null)
             {
                 return HttpNotFound();
             }
 
-            ViewBag.客戶分類 = new SelectList(db.客戶分類, "Id", "分類名稱", 客戶資料.客戶分類);
-            return View(客戶資料);
+            ViewBag.客戶分類 = new SelectList(categoryRepo.All(), "Id", "分類名稱", customer.客戶分類);
+            return View(customer);
         }
 
         // POST: Customers/Edit/5
@@ -84,17 +92,17 @@ namespace _201807_MVC_HW1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,客戶名稱,統一編號,電話,傳真,地址,Email,是否已刪除,客戶分類")]
-            客戶資料 客戶資料)
+            客戶資料 customer)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(客戶資料).State = EntityState.Modified;
-                db.SaveChanges();
+                customerRepo.UnitOfWork.Context.Entry(customer).State = EntityState.Modified;
+                customerRepo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.客戶分類 = new SelectList(db.客戶分類, "Id", "分類名稱", 客戶資料.客戶分類);
-            return View(客戶資料);
+            ViewBag.客戶分類 = new SelectList(categoryRepo.All(), "Id", "分類名稱", customer.客戶分類);
+            return View(customer);
         }
 
         // GET: Customers/Delete/5
@@ -105,13 +113,13 @@ namespace _201807_MVC_HW1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            if (客戶資料 == null)
+            var customer = customerRepo.Find(id.Value);
+            if (customer == null)
             {
                 return HttpNotFound();
             }
 
-            return View(客戶資料);
+            return View(customer);
         }
 
         // POST: Customers/Delete/5
@@ -119,9 +127,9 @@ namespace _201807_MVC_HW1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            db.客戶資料.Remove(客戶資料);
-            db.SaveChanges();
+            var customer = customerRepo.Find(id);
+            customerRepo.Delete(customer);
+            customerRepo.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
@@ -129,7 +137,7 @@ namespace _201807_MVC_HW1.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                customerRepo.UnitOfWork.Context.Dispose();
             }
 
             base.Dispose(disposing);

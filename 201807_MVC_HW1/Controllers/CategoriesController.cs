@@ -8,12 +8,17 @@ namespace _201807_MVC_HW1.Controllers
 {
     public class CategoriesController : Controller
     {
-        private CustomerEntities db = new CustomerEntities();
+        private 客戶分類Repository categoryRepo;
+
+        public CategoriesController()
+        {
+            categoryRepo = RepositoryHelper.Get客戶分類Repository();
+        }
 
         // GET: Categories
         public ActionResult Index()
         {
-            return View(db.客戶分類.ToList());
+            return View(categoryRepo.All().ToList());
         }
 
         // GET: Categories/Details/5
@@ -24,13 +29,13 @@ namespace _201807_MVC_HW1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            客戶分類 客戶分類 = db.客戶分類.Find(id);
-            if (客戶分類 == null)
+            客戶分類 category = categoryRepo.Find(id.Value);
+            if (category == null)
             {
                 return HttpNotFound();
             }
 
-            return View(客戶分類);
+            return View(category);
         }
 
         // GET: Categories/Create
@@ -44,16 +49,16 @@ namespace _201807_MVC_HW1.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,分類名稱,是否已刪除")] 客戶分類 客戶分類)
+        public ActionResult Create([Bind(Include = "Id,分類名稱,是否已刪除")] 客戶分類 category)
         {
             if (ModelState.IsValid)
             {
-                db.客戶分類.Add(客戶分類);
-                db.SaveChanges();
+                categoryRepo.Add(category);
+                categoryRepo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
-            return View(客戶分類);
+            return View(category);
         }
 
         // GET: Categories/Edit/5
@@ -64,13 +69,13 @@ namespace _201807_MVC_HW1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            客戶分類 客戶分類 = db.客戶分類.Find(id);
-            if (客戶分類 == null)
+            客戶分類 category = categoryRepo.Find(id.Value);
+            if (category == null)
             {
                 return HttpNotFound();
             }
 
-            return View(客戶分類);
+            return View(category);
         }
 
         // POST: Categories/Edit/5
@@ -78,16 +83,16 @@ namespace _201807_MVC_HW1.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,分類名稱,是否已刪除")] 客戶分類 客戶分類)
+        public ActionResult Edit([Bind(Include = "Id,分類名稱,是否已刪除")] 客戶分類 category)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(客戶分類).State = EntityState.Modified;
-                db.SaveChanges();
+                categoryRepo.UnitOfWork.Context.Entry(category).State = EntityState.Modified;
+                categoryRepo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
-            return View(客戶分類);
+            return View(category);
         }
 
         // GET: Categories/Delete/5
@@ -98,13 +103,13 @@ namespace _201807_MVC_HW1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            客戶分類 客戶分類 = db.客戶分類.Find(id);
-            if (客戶分類 == null)
+            客戶分類 category = categoryRepo.Find(id.Value);
+            if (category == null)
             {
                 return HttpNotFound();
             }
 
-            return View(客戶分類);
+            return View(category);
         }
 
         // POST: Categories/Delete/5
@@ -112,9 +117,9 @@ namespace _201807_MVC_HW1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶分類 客戶分類 = db.客戶分類.Find(id);
-            db.客戶分類.Remove(客戶分類);
-            db.SaveChanges();
+            客戶分類 category = categoryRepo.Find(id);
+            categoryRepo.Delete(category);
+            categoryRepo.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
@@ -122,7 +127,7 @@ namespace _201807_MVC_HW1.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                categoryRepo.UnitOfWork.Context.Dispose();
             }
 
             base.Dispose(disposing);
