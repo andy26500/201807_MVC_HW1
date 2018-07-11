@@ -13,6 +13,7 @@
 {
     @Html.TextBox("Name", null, new { type = "search", placeholder = "請輸入聯絡人名稱關鍵字" })
     <input id="btnSearch" type="submit" value="搜尋" class="btn btn-primary" />
+    <input id="btnExport" type="button" class="btn btn-success" value="匯出Excel" onclick="exportExcel();" />
     <br />
     <p>依職稱篩選：@Html.DropDownList("Title", ViewBag.Titles as SelectList, "不限", new { onchange = "filterChanged()" })</p>
 }
@@ -74,6 +75,10 @@
     <script>
         function filterChanged() {
             $('#searchForm').submit();
+        }
+
+        function exportExcel() {
+            $('#searchForm').attr('action', '@Url.Action("Export", "Contacts")').submit();
         }
     </script>
 }

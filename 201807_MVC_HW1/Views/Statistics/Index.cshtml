@@ -6,7 +6,10 @@
 }
 
 <h2>客戶統計資訊</h2>
-
+@using (Html.BeginForm("Export", "Statistics", FormMethod.Post, new { id = "searchForm" }))
+{
+    <input id="btnExport" type="button" class="btn btn-success" value="匯出Excel" onclick="exportExcel();" />
+}
 <table class="table">
     <thead>
         <tr>

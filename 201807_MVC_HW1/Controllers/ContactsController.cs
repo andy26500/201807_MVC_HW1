@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Data;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -34,6 +35,55 @@ namespace _201807_MVC_HW1.Controllers
             var titles = contactRepo.All().Select(x => x.職稱).Distinct().ToList();
             ViewBag.Titles = new SelectList(titles);
             return View("Index", contacts);
+        }
+
+        [HttpPost]
+        public ActionResult Export(ContactSearchViewModel filter)
+        {
+            var result = contactRepo
+                .Search(filter.Name, filter.Title)
+                .Include(客 => 客.客戶資料)
+                .Select(x =>
+                    new
+                    {
+                        customerName = x.客戶資料.客戶名稱,
+                        title = x.職稱,
+                        contactName = x.姓名,
+                        email = x.Email,
+                        cellPhone = x.手機,
+                        phone = x.電話
+                    })
+                .ToList();
+
+            var dt = GetDataTable();
+
+            result.ForEach(item =>
+            {
+                var row = dt.NewRow();
+                row[0] = item.customerName;
+                row[1] = item.title;
+                row[2] = item.contactName;
+                row[3] = item.email;
+                row[4] = item.cellPhone;
+                row[5] = item.phone;
+                dt.Rows.Add(row);
+            });
+
+            return new ExportExcelResult("客戶聯絡人資料.xlsx", dt);
+        }
+
+        private DataTable GetDataTable()
+        {
+            var dt = new DataTable();
+
+            dt.Columns.Add("客戶名稱");
+            dt.Columns.Add("職稱");
+            dt.Columns.Add("姓名");
+            dt.Columns.Add("Email");
+            dt.Columns.Add("手機");
+            dt.Columns.Add("電話");
+
+            return dt;
         }
 
         // GET: Contacts/Details/5

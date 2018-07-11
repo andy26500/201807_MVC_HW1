@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Data;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -32,6 +33,59 @@ namespace _201807_MVC_HW1.Controllers
             var data = customerRepo.Search(filter.Name, filter.CategoryID).Include(x => x.客戶分類1).ToList();
             ViewBag.Category = new SelectList(categoryRepo.All(), "Id", "分類名稱");
             return View("Index", data);
+        }
+
+        [HttpPost]
+        public ActionResult Export(CustomerSearchViewModel filter)
+        {
+            var result = customerRepo
+                .Search(filter.Name, filter.CategoryID)
+                .Include(客 => 客.客戶分類1)
+                .Select(x =>
+                    new
+                    {
+                        customerName = x.客戶名稱,
+                        taxID = x.統一編號,
+                        phone = x.電話,
+                        fax = x.傳真,
+                        address = x.地址,
+                        email = x.Email,
+                        category = x.客戶分類1.分類名稱
+                    })
+                .ToList();
+
+            var dt = GetDataTable();
+
+            result.ForEach(item =>
+            {
+                var row = dt.NewRow();
+                row[0] = item.customerName;
+                row[1] = item.taxID;
+                row[2] = item.phone;
+                row[3] = item.fax;
+                row[4] = item.address;
+                row[5] = item.email;
+                row[6] = item.category;
+                dt.Rows.Add(row);
+            });
+
+            return new ExportExcelResult("客戶資料.xlsx", dt);
+        }
+
+        private DataTable GetDataTable()
+        {
+            var dt = new DataTable();
+
+            dt.Columns.Add("客戶名稱");
+            dt.Columns.Add("統一編號	");
+            dt.Columns.Add("電話");
+            dt.Columns.Add("傳真");
+            dt.Columns.Add("地址");
+            dt.Columns.Add("Email");
+            dt.Columns.Add("客戶分類");
+            
+
+            return dt;
         }
 
         // GET: Customers/Details/5

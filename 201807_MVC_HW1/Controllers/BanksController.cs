@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using System.Data;
 using _201807_MVC_HW1.Models;
 using _201807_MVC_HW1.ViewModels;
 
@@ -30,6 +31,55 @@ namespace _201807_MVC_HW1.Controllers
         {
             var result = bankRepo.Search(filter.CustomerName).Include(客 => 客.客戶資料).ToList();
             return View("Index", result);
+        }
+
+        [HttpPost]
+        public ActionResult Export(BankSearchViewModel filter)
+        {
+            var result = bankRepo
+                .Search(filter.CustomerName)
+                .Include(客 => 客.客戶資料)
+                .Select(x =>
+                new
+                {
+                    customerName = x.客戶資料.客戶名稱,
+                    bankName = x.銀行名稱,
+                    bankCode = x.銀行代碼,
+                    branchCode = x.分行代碼,
+                    accountName = x.帳戶名稱,
+                    accountNo = x.帳戶號碼
+                })
+                .ToList();
+
+            var dt = GetDataTable();
+
+            result.ForEach(item =>
+            {
+                var row = dt.NewRow();
+                row[0] = item.customerName;
+                row[1] = item.bankName;
+                row[2] = item.bankCode;
+                row[3] = item.branchCode;
+                row[4] = item.accountName;
+                row[5] = item.accountNo;
+                dt.Rows.Add(row);
+            });
+
+            return new ExportExcelResult("客戶銀行資料.xlsx", dt);
+        }
+
+        private DataTable GetDataTable()
+        {
+            var dt = new DataTable();
+
+            dt.Columns.Add("客戶名稱");
+            dt.Columns.Add("銀行名稱");
+            dt.Columns.Add("銀行代碼");
+            dt.Columns.Add("分行代碼");
+            dt.Columns.Add("帳戶名稱");
+            dt.Columns.Add("帳戶號碼");
+
+            return dt;
         }
 
         // GET: Banks/Details/5
