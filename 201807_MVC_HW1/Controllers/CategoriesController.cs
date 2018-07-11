@@ -49,7 +49,7 @@ namespace _201807_MVC_HW1.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,分類名稱,是否已刪除")] 客戶分類 category)
+        public ActionResult Create([Bind(Include = "Id,分類名稱")] 客戶分類 category)
         {
             if (ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace _201807_MVC_HW1.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,分類名稱,是否已刪除")] 客戶分類 category)
+        public ActionResult Edit([Bind(Include = "Id,分類名稱")] 客戶分類 category)
         {
             if (ModelState.IsValid)
             {
