@@ -33,8 +33,9 @@ namespace _201807_MVC_HW1.Models
         public string 地址 { get; set; }
         
         [StringLength(250, ErrorMessage="欄位長度不得大於 250 個字元")]
+        [EmailAddress]
         public string Email { get; set; }
-        [Required]
+        
         public bool 是否已刪除 { get; set; }
         [Required]
         public int 客戶分類 { get; set; }
