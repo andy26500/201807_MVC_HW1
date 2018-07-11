@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using _201807_MVC_HW1.Models;
+using _201807_MVC_HW1.ViewModels;
 
 namespace _201807_MVC_HW1.Controllers
 {
@@ -21,7 +22,16 @@ namespace _201807_MVC_HW1.Controllers
         public ActionResult Index()
         {
             var data = customerRepo.All().Include(x => x.客戶分類1).ToList();
+            ViewBag.Category = new SelectList(categoryRepo.All(), "Id", "分類名稱");
             return View(data);
+        }
+
+        [HttpPost]
+        public ActionResult Search(CustomerSearchViewModel filter)
+        {
+            var data = customerRepo.Search(filter.Name, filter.CategoryID).Include(x => x.客戶分類1).ToList();
+            ViewBag.Category = new SelectList(categoryRepo.All(), "Id", "分類名稱");
+            return View("Index", data);
         }
 
         // GET: Customers/Details/5

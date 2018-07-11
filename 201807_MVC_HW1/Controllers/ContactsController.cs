@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using _201807_MVC_HW1.Models;
+using _201807_MVC_HW1.ViewModels;
 
 namespace _201807_MVC_HW1.Controllers
 {
@@ -21,7 +22,18 @@ namespace _201807_MVC_HW1.Controllers
         public ActionResult Index()
         {
             var contacts = contactRepo.All().Include(客 => 客.客戶資料);
+            var titles = contactRepo.All().Select(x => x.職稱).Distinct().ToList();
+            ViewBag.Titles = new SelectList(titles);
             return View(contacts.ToList());
+        }
+
+        [HttpPost]
+        public ActionResult Search(ContactSearchViewModel filter)
+        {
+            var contacts = contactRepo.Search(filter.Name, filter.Title).Include(客 => 客.客戶資料).ToList();
+            var titles = contactRepo.All().Select(x => x.職稱).Distinct().ToList();
+            ViewBag.Titles = new SelectList(titles);
+            return View("Index", contacts);
         }
 
         // GET: Contacts/Details/5

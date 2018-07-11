@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Data.Entity;
 
 namespace _201807_MVC_HW1.Models
 {
@@ -19,6 +20,17 @@ namespace _201807_MVC_HW1.Models
         public 客戶銀行資訊 Find(int id)
         {
             return All().FirstOrDefault(x => x.Id == id);
+        }
+
+        public IQueryable<客戶銀行資訊> Search(string filterCustomerName)
+        {
+            var result = All();
+
+            if (!string.IsNullOrEmpty(filterCustomerName))
+                result = result
+                    .Where(x => x.客戶資料.客戶名稱.Contains(filterCustomerName));
+
+            return result;
         }
     }
 

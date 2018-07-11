@@ -9,6 +9,13 @@
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
+@using (Html.BeginForm("Search", "Contacts", FormMethod.Post, new { id = "searchForm" }))
+{
+    @Html.TextBox("Name", null, new { type = "search", placeholder = "請輸入聯絡人名稱關鍵字" })
+    <input id="btnSearch" type="submit" value="搜尋" class="btn btn-primary" />
+    <br />
+    <p>依職稱篩選：@Html.DropDownList("Title", ViewBag.Titles as SelectList, "不限", new { onchange = "filterChanged()" })</p>
+}
 <table class="table">
     <tr>
         <th>
@@ -62,3 +69,11 @@
 }
 
 </table>
+
+@section scripts {
+    <script>
+        function filterChanged() {
+            $('#searchForm').submit();
+        }
+    </script>
+}

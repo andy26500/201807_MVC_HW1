@@ -20,6 +20,19 @@ namespace _201807_MVC_HW1.Models
 	    {
 	        return All().FirstOrDefault(x => x.Id == id);
 	    }
+
+	    public IQueryable<客戶資料> Search(string filterName, int filterCategoryId)
+	    {
+	        var result = All();
+
+	        if (!string.IsNullOrEmpty(filterName))
+	            result = result.Where(x => x.客戶名稱.Contains(filterName));
+
+	        if (filterCategoryId != 0)
+	            result = result.Where(x => x.客戶分類 == filterCategoryId);
+
+	        return result;
+	    }
 	}
 
 	public  interface I客戶資料Repository : IRepository<客戶資料>

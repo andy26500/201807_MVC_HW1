@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using _201807_MVC_HW1.Models;
+using _201807_MVC_HW1.ViewModels;
 
 namespace _201807_MVC_HW1.Controllers
 {
@@ -22,6 +23,13 @@ namespace _201807_MVC_HW1.Controllers
         {
             var banks = bankRepo.All().Include(客 => 客.客戶資料);
             return View(banks.ToList());
+        }
+
+        [HttpPost]
+        public ActionResult Search(BankSearchViewModel filter)
+        {
+            var result = bankRepo.Search(filter.CustomerName).Include(客 => 客.客戶資料).ToList();
+            return View("Index", result);
         }
 
         // GET: Banks/Details/5
